@@ -5,6 +5,9 @@ Setup a `.env` file with the following content
 TWITCH_BOT_USERNAME=
 TWITCH_OAUTH_TOKEN=
 
+TWITCH_CLIENT_ID=
+TWITCH_CALLBACK_URL=
+
 FIREBASE_API_KEY=
 FIREBASE_AUTH_DOMAIN=
 FIREBASE_DATABASE_URL=
@@ -27,5 +30,5 @@ npm start
 > Warning, to not check their profile on Twitch
 - [regex101](https://regex101.com/)
 - [Twitch Token Generator](https://twitchtokengenerator.com/)
-
+- [Firebase Snippets](https://github.com/firebase/snippets-web/tree/1e8f41c904d557f486cdab2a1401ec5f6033dc39/snippets)
 - [EventSub Twitch](https://youtu.be/6teyDfiMeSU?t=3207)

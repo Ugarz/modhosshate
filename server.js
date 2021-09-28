@@ -1,58 +1,40 @@
-require('dotenv').config();
-const tmi = require('tmi.js');
-const DAL = require('./DAL')
-// const flags = require('./flags.json')
+require('dotenv').config()
+
+// Launch bot
+require('./main')
+const axios = require('axios')
+const express = require('express')
+const app = express()
+const port = 3060
+
 
 const {
-  TWITCH_OAUTH_TOKEN,
-  TWITCH_BOT_USERNAME } = process.env;
+  TWITCH_CLIENT_ID,
+  TWITCH_CALLBACK_URL,
+  TWITCH_CLIENT_SECRET
+} = process.env;
 
-const client = new tmi.Client({
-	options: { debug: true },
-  connection: {
-    reconnect: true
-  },
-	identity: {
-		username: TWITCH_BOT_USERNAME,
-		password: TWITCH_OAUTH_TOKEN
-	},
-	channels: [ TWITCH_BOT_USERNAME ]
-});
+app.get('/', (req, res) => {
+  res.send('<a href="/auth">Auth</a>')
+})
 
-client.connect();
+const url = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${TWITCH_CALLBACK_URL}&response_type=token&scope=moderation:read%20channel:moderate%20chat:edit%20chat:read%20whispers:read%20whispers:edit`
+const url2 = `https://id.twitch.tv/oauth2/token?client_id=${TWITCH_CLIENT_ID}&client_secret=${TWITCH_CLIENT_SECRET}&grant_type=client_credentials&scope=moderation:read%20channel:moderate%20chat:edit%20chat:read%20whispers:read%20whispers:edit`
 
-client.on('message', (channel, tags, message, self) => {
-  console.log('on message', tags)
+//TODO: Auth the bot
+//TODO: Auth user Twitch
+//TODO: Store accessToken
+//TODO: Perform request with accessToken
 
-  // Ignore echoed messages.
-  if(self) return;
+app.get('/auth', (req, res) => {
+  res.redirect(url)
+})
 
-  const bannedUserInfos = {
-    displayName: tags['display-name'],
-    username: tags.username,
-    firstMsg: tags['first-msg'],
-    mod: tags.mod,
-    subscriber: tags.subscriber,
-    userId: tags['user-id'],
-    messageType: tags['message-type'],
-    message,
-    onChannel: channel
-  }
+app.get('/cb', function (req, res) {
+  console.log('LOCATION', res)
+  res.send('callback')
+})
 
-  console.log("bannedUserInfos", bannedUserInfos)
-
-  const { "display-name": dispayName } = tags;
-
-  if (dispayName.match(/(h[0|o]s+)|(h[0|o]s[0|o]s+)/gm)) {
-    console.log('== its hoss')
-    const reason = "Begone IP grabbing bot, pew pew pew"
-    // ban users
-    client.ban(TWITCH_BOT_USERNAME, dispayName, reason)
-      .then(res => console.log(`Banned ${dispayName}`))
-      .catch(err => console.warn(`Error banning ${dispayName}: ${err}`))
-      //TODO: Store identity
-      DAL.create(bannedUserInfos)
-  }
-
-});
-
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`)
+})
