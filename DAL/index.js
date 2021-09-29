@@ -1,44 +1,43 @@
 const app = require('../firebase')
+const { v4: uuidv4 } = require('uuid');
+
 
 const {
   getDatabase,
   ref,
+  child,
   set,
-  update,
+  push,
   increment,
+  update,
   serverTimestamp
 } = require("firebase/database");
 
 const db = getDatabase();
 
-// https://github.com/firebase/snippets-web/blob/1e8f41c904d557f486cdab2a1401ec5f6033dc39/snippets/database-next/read-and-write/rtdb_social_star_increment.js
-function addBan(userInfos) {
-  const dbRef = ref(db);
-
-  const updates = {};
-  updates[`banned/${userInfos.username}-${userInfos.userId}/number`] = increment(1)
-  update(dbRef, updates);
-}
 
 function writeBannedUserData(client, userInfos) {
-  console.log("Add streamer user")
-  set(ref(db, 'users/' + (userInfos.onChannel).replaceAll("#","") + `/${userInfos.username}-${userInfos.userId}`), {
+
+  //TODO: Set new user of bot (streamer)
+  set(ref(db, `users/${(userInfos.onChannel).replaceAll("#","")}/${userInfos.fullUsername}`), {
     message: userInfos.message,
     date: userInfos.timestamp || serverTimestamp()
   })
-  .then(() => console.log("J'ai créé une entrée en db"))
   .catch(error => console.log("Error while writing in database", error));
 
-  console.log("Add a banned user")
-  set(ref(db, 'banned/' + userInfos.username + `-${userInfos.userId}`), {
-    onChannel: userInfos.onChannel
+  // TODO: Set Banned account
+  set(ref(db, `banned/${userInfos.fullUsername}`), {
+    onChannel: (userInfos.onChannel).replaceAll("#",""),
+    lastBan: userInfos.timestamp || serverTimestamp(),
+    count: increment(1)
   })
   .then(() => {
-    client.say(userInfos.onChannel, `J'ai ajouté son ${userInfos.username} au registre des gens à bannir.`)
-    addBan(userInfos)
+    client.say(userInfos.onChannel, `${userInfos.username} has been added to the users banned list.`)
   })
   .catch(error => console.log("Error while writing in database", error));
 }
+
+
 
 module.exports = {
   create: writeBannedUserData

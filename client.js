@@ -15,7 +15,7 @@ const client = new tmi.Client({
 		username: TWITCH_BOT_USERNAME,
 		password: TWITCH_OAUTH_TOKEN
 	},
-	channels: [ "Carbow" ]
+	channels: [ "Carbow", "MamieNephy" ]
 });
 
 client.connect();

@@ -2,11 +2,6 @@ const client = require('./client')
 const DAL = require('./DAL')
 const { panel } = require('./policies/flags.json')
 
-const {
-  TWITCH_OAUTH_TOKEN,
-  TWITCH_BOT_USERNAME } = process.env;
-
-
 client.on('message', (channel, tags, message, self) => {
   console.log('on message', tags)
 
@@ -16,10 +11,11 @@ client.on('message', (channel, tags, message, self) => {
   const userInfos = {
     username: tags['display-name'],
     userId: tags['user-id'],
+    fullUsername: `${tags['display-name']}-${tags['user-id']}`,
     messageType: tags['message-type'],
     message,
     onChannel: channel,
-    timestamp : tags['tmi-sent-ts']
+    timestamp : tags['tmi-sent-ts'],
   }
 
   console.log("userInfos", userInfos)
@@ -28,11 +24,10 @@ client.on('message', (channel, tags, message, self) => {
 
   if (dispayName.match(/(h[0|o]s+)|(h[0|o]s[0|o]s+)|(ho\d+ss)/gmi)
     || panel.includes(dispayName)) {
-    console.log('== its hoss')
-    const reason = "Begone IP grabbing bot, pew pew pew"
+    console.log('== hoss detected')
     // ban users
-    client.ban(channel, dispayName, reason)
-      .then(res => console.log(`Banned ${dispayName}`))
+    client.ban(channel, dispayName, "IP grabbing bot")
+      .then(() => console.log(`Banned ${dispayName}`))
       .catch(err => console.warn(`Error banning ${dispayName}: ${err}`))
       //TODO: Store identity
       DAL.create(client, userInfos)
