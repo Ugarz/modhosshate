@@ -30,7 +30,7 @@ client.on('message', (channel, tags, message, self) => {
       .then(() => console.log(`Banned ${dispayName}`))
       .catch(err => console.warn(`Error banning ${dispayName}: ${err}`))
       //TODO: Store identity
-      DAL.create(client, userInfos)
+      DAL.writeBannedUserData(client, userInfos)
   }
 
 });
