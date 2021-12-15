@@ -1,17 +1,32 @@
 {
-  // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
-  // Pointez pour afficher la description des attributs existants.
-  // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-node",
+      "name": "Next.js: debug server-side",
+      "type": "node-terminal",
       "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
-      "program": "${workspaceFolder}/server.js"
+      "command": "npm run dev",
+      "program": "${workspaceFolder}/client/pages/index.js",
+    },
+    {
+      "name": "Next.js: debug client-side",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "program": "${workspaceFolder}/client/pages/index.js",
+    },
+    {
+      "name": "Next.js: debug full stack",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "pattern": "started server on .+, url: (https?://.+)",
+        "uriFormat": "%s",
+        "action": "debugWithChrome"
+      },
+      "program": "${workspaceFolder}/client/pages/index.js",
     }
   ]
 }
