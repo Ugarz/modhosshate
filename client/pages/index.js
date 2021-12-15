@@ -2,24 +2,29 @@ import Head from 'next/head'
 import Image from 'next/image'
 import { useSession, signIn, signOut } from "next-auth/react"
 import axios from 'axios'
+import { useState, useEffect } from 'react'
 
 import styles from '../styles/Home.module.css'
 
-const createNewUser = () => {
-  const bannedUsers = `https://api.twitch.tv/helix/moderation/banned`
-  const response = axios.get(url, {
-    headers: {
-      'Authorization': 'Bearer cfabdegwdoklmawdzdo98xt2fo512y',
-      'Client-Id': process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID
-    }
-  })
-  return true
-}
-
 export default function Home() {
+  const [bannedUsers, setBannedUsers] = useState()
   const { data: session } = useSession()
+
+  async function handleOnSearchSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const query = formData.get('query');
+    const results = await fetch ('/api/twitch/banned', {
+      method: "POST",
+      body: JSON.stringify({
+        query
+      })
+    }).then(res => res.json())
+    console.log("results", results.data)
+    setBannedUsers(results.data)
+  }
+
   if(session) {
-    console.log("session:", session)
     return <>
       <p>
         <Image
@@ -29,7 +34,25 @@ export default function Home() {
           height={30}
         /> Signed in as {session.user.email}</p>
       <button onClick={() => signOut()}>Sign out</button>
-      <button onClick={() => createNewUser() }>Connect to Bot</button>
+      <div>
+        <form onSubmit={handleOnSearchSubmit}>
+          <h2>Ban a User</h2>
+          <input type="search" name="query" />
+          <button>Search</button>
+        </form>
+        <div>
+          <h2>Banned Users</h2>
+          <ul>
+            {bannedUsers && bannedUsers.data.map(({user_id, user_name, moderator_name, reason}, index) => {
+              return (
+                <li key={index}>
+                  <p>{user_name} a été ban par{moderator_name} car {reason}</p>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      </div>
     </>
   }
   return <>
