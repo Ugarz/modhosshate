@@ -1,4 +1,4 @@
-# ModHossHate
+# ModHate
 Setup a `.env` file with the following content
 
 ```
