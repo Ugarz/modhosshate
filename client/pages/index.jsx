@@ -21,7 +21,8 @@ export default function Home() {
             height={30}
           />{' '}
           Signed in as {session.user.name}
-          <br/><span>({session.user.email})</span>
+          <br />
+          <span>({session.user.email})</span>
         </p>
         <button onClick={() => signOut()}>Sign out</button>
         <UserBannedList />

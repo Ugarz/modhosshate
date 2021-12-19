@@ -11,7 +11,6 @@ const providerOverride = {
   userinfo: 'https://id.twitch.tv/oauth2/userinfo',
   accessTokenUrl: 'https://api.twitch.tv/helix/',
   profile(profile, tokens) {
-    console.log('profile', profile)
     return {
       id: profile.sub,
       name: profile.name,
@@ -42,7 +41,7 @@ export default NextAuth({
     ),
   ],
   callbacks: {
-    async session({ session, user, token }) {
+    async session({session, user, token}) {
       session.token = token.twitch.accessToken
       return session
     },

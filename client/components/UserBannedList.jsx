@@ -1,25 +1,25 @@
-import banned, { getData } from "../pages/api/twitch/banned"
-import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+import {useSession} from 'next-auth/react'
+import {useEffect, useState} from 'react'
+
+import {getData} from '../pages/api/twitch/banned'
 
 const UserBannedList = () => {
-  const { data: session, status } = useSession()
+  const {data: session, status} = useSession()
   const [bannedUsers, setBannedUsers] = useState([])
-
+  console.log(session)
   useEffect(() => {
     getData(session.token)
-    .then(bannedUsers => {
-      console.log("bannedUsers", bannedUsers)
-      setBannedUsers(bannedUsers)
-    })
-    .catch(error => console.log('woops', error))
+      .then(bannedUsers => {
+        setBannedUsers(bannedUsers)
+      })
+      .catch(error => console.log('woops', error))
   }, [])
 
-  if (status === "loading") {
+  if (status === 'loading') {
     return <p>Loading...</p>
   }
 
-  if (status === "unauthenticated") {
+  if (status === 'unauthenticated') {
     return <p>Access Denied</p>
   }
 
@@ -29,17 +29,18 @@ const UserBannedList = () => {
         <h2>Banned Users</h2>
         <ul>
           {bannedUsers.map(
-              ({user_id, user_name, moderator_name, reason}, index) => {
-                return (
-                  <li key={index}>
-                    <p>
-                      {user_name} a été ban par
-                      {moderator_name} car {reason}
-                    </p>
-                  </li>
-                )
-              }
-            )}
+            ({user_id, user_name, moderator_name, reason}, index) => {
+              return (
+                <li key={index}>
+                  <p>
+                    {user_name} a été ban par
+                    {moderator_name}<br />
+                    Raison: {reason}
+                  </p>
+                </li>
+              )
+            }
+          )}
         </ul>
       </div>
     </>
