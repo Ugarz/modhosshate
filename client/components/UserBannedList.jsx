@@ -6,7 +6,7 @@ import {getData} from '../pages/api/twitch/banned'
 const UserBannedList = () => {
   const {data: session, status} = useSession()
   const [bannedUsers, setBannedUsers] = useState([])
-  console.log(session)
+  console.log("session here", session)
   useEffect(() => {
     getData(session.token)
       .then(bannedUsers => {
@@ -37,6 +37,7 @@ const UserBannedList = () => {
                     {moderator_name}<br />
                     Raison: {reason}
                   </p>
+                  <button>unban</button>
                 </li>
               )
             }
