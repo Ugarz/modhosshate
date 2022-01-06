@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from "axios"
 import {getToken} from 'next-auth/jwt'
 
 const secret = process.env.NEXT_PUBLIC_JWT_SECRET
@@ -21,7 +21,7 @@ export async function getData(token) {
   return bannedUsers.data.data
 }
 
-export async function banUser(token, broadcaster_id, moderator_id) {
+export async function banUser(token, broadcaster_id="132041668", moderator_id="132041668") {
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -29,8 +29,8 @@ export async function banUser(token, broadcaster_id, moderator_id) {
       Accept: 'json',
     },
     params: {
-      broadcaster_id: '132041668',
-      moderator_id: '132041668'
+      broadcaster_id,
+      moderator_id
     },
   }
   const bannedUsers = await axios.post(

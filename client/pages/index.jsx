@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import Image from 'next/image'
 import {useSession, signIn, signOut} from 'next-auth/react'
-import axios from 'axios'
+
 import {useState, useEffect} from 'react'
 import UserBannedList from '../components/UserBannedList'
 
