@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import TwitchProvider from 'next-auth/providers/twitch'
+import axios from 'axios'
 
 async function refreshAccessToken(token) {
   const scopes = process.env.NEXT_PUBLIC_TWITCH_SCOPES.replaceAll(',', ' ')
@@ -7,27 +8,36 @@ async function refreshAccessToken(token) {
   try {
     const refreshAccessTokenUrl = `https://id.twitch.tv/oauth2/token--data-urlencode?grant_type=refresh_token&refresh_token=${token.refreshToken}&client_id=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_ID}&client_secret=${process.env.NEXT_PUBLIC_TWITCH_CLIENT_SECRET}&scope=${scopes}`
 
-    const response = await fetch(refreshAccessTokenUrl, {
-      headers: {
-        "Accept": "application/json",
-      },
-      method: "POST",
+    // const response = await fetch(refreshAccessTokenUrl, {
+    //   headers: {
+    //     "Accept": "application/json",
+    //   },
+    //   method: "POST",
+    // })
+
+    axios.post(refreshAccessTokenUrl)
+    .then(function (response) {
+      // const refreshedTokens = await response.json()
+      console.log("response", response)
+
+      if (!response.ok) {
+        throw refreshedTokens
+      }
+
+      return {
+        ...token,
+        accessToken: refreshedTokens.access_token,
+        accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+        refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+      }
     })
-    const refreshedTokens = await response.json()
-    console.log("refreshedTokens", refreshedTokens)
+    .catch(function (error) {
+      throw error;
+    });
 
-    if (!response.ok) {
-      throw refreshedTokens
-    }
 
-    return {
-      ...token,
-      accessToken: refreshedTokens.access_token,
-      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
-    }
   } catch (error) {
-    console.log("\n -- ERROR", error)
+    console.log("\n Error while refreshing token", error.response);
 
     return {
       ...token,
@@ -61,6 +71,9 @@ export default NextAuth({
   ],
   callbacks: {
     async jwt({token, user, account}) {
+      console.log("CB JWT token", token)
+      console.log("CB JWT user", user)
+      console.log("CB JWT account", account)
       // if (account.provider && !token[account.provider]) {
       //   token[account.provider] = {}
       // }
@@ -70,7 +83,7 @@ export default NextAuth({
       // if (account.refresh_token) {
       //   token[account.provider].refreshToken = account.refresh_token
       // }
-      // return token
+
       if (account && user) {
         return {
           accessToken: account.access_token,
@@ -79,6 +92,7 @@ export default NextAuth({
           user,
         }
       }
+      console.log("\n == Is the token expired ?", Date.now() < token.accessTokenExpires)
       // Return previous token if the access token has not expired yet
       if (Date.now() < token.accessTokenExpires) {
         return token
@@ -88,7 +102,8 @@ export default NextAuth({
       return refreshAccessToken(token)
     },
     async session({session, token}) {
-      console.log("all", token)
+      console.log("CB SESSION session", session)
+      console.log("CB SESSION token", token)
       session.token = token.accessToken
       session.user = token.user
       return session
